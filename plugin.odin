@@ -11,7 +11,7 @@ Plugin_Descriptor :: struct {
 	url:         cstring,
 	manual_url:  cstring,
 	support_url: cstring,
-	verison:     cstring,
+	version:     cstring,
 	description: cstring,
 	features: [^]cstring,
 }
