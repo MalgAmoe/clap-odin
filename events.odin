@@ -1,45 +1,72 @@
 package clap
 
+// The clap core event space
 CORE_EVENT_SPACE_ID :: 0
 
+// Event flags for additional event metadata
 Event_Flags :: enum u32 {
+	// Indicate a live user event, for example a user turning a physical knob
+	// or playing a physical key.
 	IS_LIVE     = 1 << 0,
+	// Indicate that the event should not be recorded.
+	// For example this is useful when a parameter changes because of a MIDI CC,
+	// because if the host records both the MIDI CC automation and the parameter
+	// automation there will be a conflict.
 	DONT_RECORD = 1 << 1,
 }
 
+// Core event types
+// Some of the following events overlap, a note on can be expressed with:
+// - CLAP_EVENT_NOTE_ON
+// - CLAP_EVENT_MIDI  
+// - CLAP_EVENT_MIDI2
+//
+// The preferred way of sending a note event is to use CLAP_EVENT_NOTE_*.
+// The same event must not be sent twice: it is forbidden to send the same note on
+// encoded with both CLAP_EVENT_NOTE_ON and CLAP_EVENT_MIDI.
 Event_Type :: enum u16 {
-	NOTE_ON             = 0,
-	NOTE_OFF            = 1,
-	NOTE_CHOKE          = 2,
-	NOTE_END            = 3,
-	NOTE_EXPRESSION     = 4,
-	PARAM_VALUE         = 5,
-	PARAM_MOD           = 6,
-	PARAM_GESTURE_BEGIN = 7,
-	PARAM_GESTURE_END   = 8,
-	TRANSPORT           = 9,
-	MIDI                = 10,
-	MIDI_SYSEX          = 11,
-	MIDI2               = 12,
+	NOTE_ON             = 0, // Note on event
+	NOTE_OFF            = 1, // Note off event
+	NOTE_CHOKE          = 2, // Note choke event (immediate stop)
+	NOTE_END            = 3, // Note end event
+	NOTE_EXPRESSION     = 4, // Note expression change
+	PARAM_VALUE         = 5, // Parameter value change
+	PARAM_MOD           = 6, // Parameter modulation
+	PARAM_GESTURE_BEGIN = 7, // Parameter gesture begin
+	PARAM_GESTURE_END   = 8, // Parameter gesture end
+	TRANSPORT           = 9, // Transport information
+	MIDI                = 10, // MIDI event
+	MIDI_SYSEX          = 11, // MIDI System Exclusive
+	MIDI2               = 12, // MIDI 2.0 event
 }
 
+// Event header - all clap events start with this header to determine the overall
+// size of the event and its type and space (a namespacing for types).
+// clap_event objects are contiguous regions of memory which can be copied
+// with a memcpy of `size` bytes starting at the top of the header.
 Event_Header :: struct {
-	size:       u32,
-	time:       u32,
-	space_id:   u16,
-	event_type: Event_Type,
-	flags:      Event_Flags,
+	size:       u32, // event size including this header, eg: sizeof(Event_Note)
+	time:       u32, // sample offset within the buffer for this event
+	space_id:   u16, // event space, see clap_host_event_registry
+	event_type: Event_Type, // event type
+	flags:      Event_Flags, // see Event_Flags
 }
 
+// Input event list interface
 Input_Events :: struct {
-	ctx:  rawptr,
+	ctx:  rawptr, // reserved pointer for the implementation
+	// Get the number of events in the list
 	size: proc "c" (list: ^Input_Events) -> u32,
+	// Get event at specified index
 	get:  proc "c" (list: ^Input_Events, index: u32) -> ^Event_Header,
 }
 
+// Output event list interface
 Output_Events :: struct {
-	ctx:      rawptr,
-	try_push: proc "c" (list: ^Input_Events, event: ^Event_Header) -> bool,
+	ctx:      rawptr, // reserved pointer for the implementation
+	// Try to push an event to the list. Returns true on success.
+	// The plugin must insert events in sample sorted order.
+	try_push: proc "c" (list: ^Output_Events, event: ^Event_Header) -> bool,
 }
 
 /////////////////

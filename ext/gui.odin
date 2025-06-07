@@ -1,7 +1,7 @@
 package ext
 
-import "core:c"
 import clap "../../clap-odin"
+import "core:c"
 
 EXT_GUI :: "clap.gui"
 
@@ -18,15 +18,15 @@ when ODIN_OS == .Windows {
 	WINDOW_API :: WINDOW_API_X11
 }
 
-hwnd   :: rawptr  // Win32
-nsview :: rawptr  // Cocoa
-xwnd   :: c.ulong // X11
+hwnd :: rawptr // Win32
+nsview :: rawptr // Cocoa
+xwnd :: c.ulong // X11
 
 Window :: struct {
-	api: cstring,
-	handle: union{
+	api:    cstring,
+	handle: union {
 		rawptr, // hwnd, nsview, other
-		xwnd,   // X11
+		xwnd, // X11
 	},
 }
 
@@ -41,21 +41,17 @@ Gui_Resize_Hints :: struct {
 Plugin_Gui :: struct {
 	is_api_supported:  proc "c" (plugin: ^clap.Plugin, api: cstring, is_floating: bool) -> bool,
 	get_preferred_api: proc "c" (plugin: ^clap.Plugin, api: ^cstring, is_floating: bool) -> bool,
-
 	create:            proc "c" (plugin: ^clap.Plugin, api: cstring, is_floating: bool) -> bool,
 	destroy:           proc "c" (plugin: ^clap.Plugin),
-
 	set_scale:         proc "c" (plugin: ^clap.Plugin, scale: f64) -> bool,
 	get_size:          proc "c" (plugin: ^clap.Plugin, width, height: ^u32) -> bool,
 	can_resize:        proc "c" (plugin: ^clap.Plugin) -> bool,
 	get_resize_hints:  proc "c" (plugin: ^clap.Plugin, hints: ^Gui_Resize_Hints) -> bool,
 	adjust_size:       proc "c" (plugin: ^clap.Plugin, width, height: ^u32) -> bool,
 	set_size:          proc "c" (plugin: ^clap.Plugin, width, height: u32) -> bool,
-
 	set_parent:        proc "c" (plugin: ^clap.Plugin, window: ^Window) -> bool,
 	set_transient:     proc "c" (plugin: ^clap.Plugin, window: ^Window) -> bool,
 	suggest_title:     proc "c" (plugin: ^clap.Plugin, title: cstring),
-
 	show:              proc "c" (plugin: ^clap.Plugin) -> bool,
 	hide:              proc "c" (plugin: ^clap.Plugin) -> bool,
 }

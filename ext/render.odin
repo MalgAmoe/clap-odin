@@ -4,12 +4,12 @@ import clap "../../clap-odin"
 
 EXT_RENDER :: "clap.render"
 
-Render_Mode :: enum i32{
-    REALTIME = 0,
-    OFFLINE  = 1,
+Render_Mode :: enum i32 {
+	REALTIME = 0,
+	OFFLINE  = 1,
 }
 
 Plugin_Render :: struct {
-    has_hard_realtime_requirement: proc "c" (plugin: ^clap.Plugin) -> bool,
-    set: proc "c" (plugin: ^clap.Plugin, mode: Render_Mode) -> bool,
+	has_hard_realtime_requirement: proc "c" (plugin: ^clap.Plugin) -> bool,
+	set:                           proc "c" (plugin: ^clap.Plugin, mode: Render_Mode) -> bool,
 }

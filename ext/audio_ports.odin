@@ -2,19 +2,43 @@ package ext
 
 import clap "../../clap-odin"
 
-// Audio Ports
-EXT_AUDIO_PORTS   :: "clap.audio-ports"
-AUDIO_PORT_MONO   :: "mono"
+//////////////////////
+// Audio Ports      //
+//////////////////////
+// This extension provides a way for the plugin to describe its current audio ports.
+//
+// If the plugin does not implement this extension, it won't have audio ports.
+//
+// 32 bits support is required for both host and plugins. 64 bits audio is optional.
+//
+// The plugin is only allowed to change its ports configuration while it is deactivated.
+
+// Audio ports extension identifier
+EXT_AUDIO_PORTS :: "clap.audio-ports"
+// Standard port type identifiers
+AUDIO_PORT_MONO :: "mono"
 AUDIO_PORT_STEREO :: "stereo"
 
-Audio_Port_Flag :: enum u32{
+// Audio port flags
+Audio_Port_Flag :: enum u32 {
+	// This port is the main audio input or output.
+	// There can be only one main input and main output.
+	// Main port must be at index 0.
 	IS_MAIN                     = 1 << 0,
+
+	// This port can be used with 64 bits audio
 	SUPPORTS_64BITS             = 1 << 1,
+
+	// 64 bits audio is preferred with this port
 	PREFERS_64BITS              = 1 << 2,
+
+	// This port must be used with the same sample size as all the other ports which have this flag.
+	// In other words if all ports have this flag then the plugin may either be used entirely with
+	// 64 bits audio or 32 bits audio, but it can't be mixed.
 	REQUIRES_COMMON_SAMPLE_SIZE = 1 << 3,
 }
 
-Audio_Port_Rescan :: enum u32{
+Audio_Port_Rescan :: enum u32 {
 	NAMES         = 1 << 0,
 	FLAGS         = 1 << 1,
 	CHANNEL_COUNT = 1 << 2,
@@ -23,56 +47,27 @@ Audio_Port_Rescan :: enum u32{
 	LIST          = 1 << 5,
 }
 
+// Audio port information
 Audio_Port_Info :: struct {
-	id:            clap.Clap_Id,
-	name:          [clap.NAME_SIZE]u8,
-	flags:         u32,
-	channel_count: u32,
-	port_type:     cstring,
-	in_place_pair: u32,
+	id:            clap.Clap_Id, // Stable port identifier
+	name:          [clap.NAME_SIZE]u8, // Port name
+	flags:         u32, // Audio port flags
+	channel_count: u32, // Number of channels
+	port_type:     cstring, // Port type (e.g., "stereo", "mono")
+	in_place_pair: u32, // For in-place processing, the output port index
 }
 
 Plugin_Audio_Ports :: struct {
 	count: proc "c" (plugin: ^clap.Plugin, is_input: bool) -> u32,
-	get:   proc "c" (plugin: ^clap.Plugin, index: u32, is_input: bool, info: ^Audio_Port_Info) -> bool,
+	get:   proc "c" (
+		plugin: ^clap.Plugin,
+		index: u32,
+		is_input: bool,
+		info: ^Audio_Port_Info,
+	) -> bool,
 }
 
 Host_Audio_Ports :: struct {
 	is_rescan_flag_supported: proc "c" (host: ^clap.Host, flag: u32) -> bool,
 	rescan:                   proc "c" (host: ^clap.Host, flags: u32),
-}
-
-// Audio Ports Config
-EXT_AUDIO_PORTS_CONFIG      :: "clap.audio-ports-config"
-EXT_AUDIO_PORTS_CONFIG_INFO :: "clap.audio-ports-config-info/draft-0"
-
-Audio_Ports_Config :: struct {
-	id:   u32,
-	name: [clap.NAME_SIZE]u8,
-	
-	input_port_count:  u32,
-	output_port_count: u32,
-
-	has_main_input:           bool,
-	main_input_channel_count: u32,
-	main_input_port_type:     cstring,
-
-	has_main_output:           bool,
-	main_output_channel_count: u32,
-	main_output_port_type:     cstring,
-}
-
-Plugin_Audio_Ports_Config :: struct {
-	count:  proc "c" (plugin: ^clap.Plugin) -> u32,
-	get:    proc "c" (plugin: ^clap.Plugin, index: u32, config: ^Audio_Ports_Config) -> bool,
-	select: proc "c" (plugin: ^clap.Plugin, config_id: clap.Clap_Id) -> bool,
-}
-
-Plugin_Audio_Ports_Config_Info :: struct {
-	current_config: proc "c" (plugin: ^clap.Plugin) -> clap.Clap_Id,
-	get:            proc "c" (plugin: ^clap.Plugin, config_id: clap.Clap_Id, port_index: u32, is_input: bool, info: ^Audio_Port_Info),
-}
-
-Host_Audio_Ports_Config :: struct {
-	rescan: proc "c" (host: ^clap.Host)
 }

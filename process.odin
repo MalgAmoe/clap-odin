@@ -1,23 +1,45 @@
 package clap
 
-Process_Status :: enum i32{
-    ERROR                 = 0,
-    CONTINUE              = 1,
-    CONTINUE_IF_NOT_QUIET = 2,
-    TAIL                  = 3,
-    SLEEP                 = 4,
+// Process status return values for the plugin's process function
+Process_Status :: enum i32 {
+	ERROR                 = 0, // Processing failed. The output buffer must be discarded.
+	CONTINUE              = 1, // Processing succeeded, keep processing.
+	CONTINUE_IF_NOT_QUIET = 2, // Processing succeeded, keep processing if the output is not quiet.
+	TAIL                  = 3, // Rely upon the plugin's tail to determine if the plugin should continue to process.
+	SLEEP                 = 4, // Processing succeeded, but no more processing is required, until the next event or variation in audio input.
 }
 
+// Process structure containing all data needed for audio processing
 Process :: struct {
-    steady_time:  i64,
-    frames_count: u32,
-    transport:    ^Event_Transport,
+	// A steady sample time counter.
+	// This field can be used to calculate the sleep duration between two process calls.
+	// This value may be specific to this plugin instance and have no relation to what
+	// other plugin instances may receive.
+	//
+	// Set to -1 if not available, otherwise the value must be greater or equal to 0,
+	// and must be increased by at least `frames_count` for the next call to process.
+	steady_time:         i64,
 
-    audio_inputs:        [^]Audio_Buffer,
-    audio_outputs:       [^]Audio_Buffer,
-    audio_inputs_count:  u32,
-    audio_outputs_count: u32,
+	// Number of frames to process
+	frames_count:        u32,
 
-    in_events:  ^Input_Events,
-    out_events: ^Output_Events,
+	// time info at sample 0
+	// If null, then this is a free running host, no transport events will be provided
+	transport:           ^Event_Transport,
+
+	// Audio buffers, they must have the same count as specified
+	// by clap_plugin_audio_ports->count().
+	// The index maps to clap_plugin_audio_ports->get().
+	// Input buffer and its contents are read-only.
+	audio_inputs:        [^]Audio_Buffer,
+	audio_outputs:       [^]Audio_Buffer,
+	audio_inputs_count:  u32,
+	audio_outputs_count: u32,
+
+	// The input event list can't be modified.
+	// Input read-only event list. The host will deliver these sorted in sample order.
+	in_events:           ^Input_Events,
+
+	// Output event list. The plugin must insert events in sample sorted order when inserting events
+	out_events:          ^Output_Events,
 }

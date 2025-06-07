@@ -5,9 +5,9 @@ import clap "../../clap-odin"
 EXT_TAIL :: "clap.tail"
 
 Plugin_Tail :: struct {
-    get: proc "c" (plugin: ^clap.Plugin) -> u32,
+	get: proc "c" (plugin: ^clap.Plugin) -> u32,
 }
 
 Host_Tail :: struct {
-    changed: proc "c" (host: ^clap.Host),
+	changed: proc "c" (host: ^clap.Host),
 }

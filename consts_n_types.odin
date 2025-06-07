@@ -1,13 +1,10 @@
 package clap
 
-NAME_SIZE :: 256
-PATH_SIZE :: 1024
+// Standard CLAP string size constants
+NAME_SIZE :: 256 // Maximum size for names
+PATH_SIZE :: 1024 // Maximum size for file paths
 
-// Fixed Point
-Beat_Time :: i64
-Sec_Time  :: i64
-BEAT_TIME_FACTOR :: i64(1 << 31)
-SEC_TIME_FACTOR  :: i64(1 << 31)
 
+// CLAP identifier type and invalid ID constant
 Clap_Id :: u32
-INVALID_ID :: u32(0xffffffff)
+INVALID_ID :: u32(0xffffffff) // Invalid/uninitialized ID value
