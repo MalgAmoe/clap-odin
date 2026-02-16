@@ -1,6 +1,6 @@
 package ext
 
-import clap "../../clap-odin"
+import clap ".."
 
 Log_Severity :: enum i32 {
 	DEBUG              = 0,

@@ -1,6 +1,6 @@
 package ext
 
-import clap "../../clap-odin"
+import clap ".."
 
 EXT_TAIL :: "clap.tail"
 

@@ -1,16 +1,15 @@
 package ext
 
-import clap "../../clap-odin"
+import clap ".."
 
 import "core:c"
 
 EXT_POSIX_FD_SUPPORT :: "clap.posix-fd-support"
 
-Posix_FD_Event_Flag :: enum u32 {
-	READ  = 1 << 0,
-	WRITE = 1 << 1,
-	ERROR = 1 << 2,
-}
+// Posix FD event flags (bitmask, OR-able)
+POSIX_FD_READ  :: 1 << 0
+POSIX_FD_WRITE :: 1 << 1
+POSIX_FD_ERROR :: 1 << 2
 
 Plugin_Posix_FD_Support :: struct {
 	on_fd: proc "c" (plugin: ^clap.Plugin, fd: c.int, flags: u32),

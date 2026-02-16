@@ -4,20 +4,11 @@ import clap "../.."
 
 EXT_TRIGGERS :: "clap.triggers/1"
 
-// Trigger flags
-Trigger_Info_Flags :: enum u32 {
-	// Does this trigger support per note automations?
-	IS_AUTOMATABLE_PER_NOTE_ID = 1 << 0,
-
-	// Does this trigger support per key automations?
-	IS_AUTOMATABLE_PER_KEY     = 1 << 1,
-
-	// Does this trigger support per channel automations?
-	IS_AUTOMATABLE_PER_CHANNEL = 1 << 2,
-
-	// Does this trigger support per port automations?
-	IS_AUTOMATABLE_PER_PORT    = 1 << 3,
-}
+// Trigger info flags (bitmask, OR-able)
+TRIGGER_IS_AUTOMATABLE_PER_NOTE_ID :: 1 << 0
+TRIGGER_IS_AUTOMATABLE_PER_KEY     :: 1 << 1
+TRIGGER_IS_AUTOMATABLE_PER_CHANNEL :: 1 << 2
+TRIGGER_IS_AUTOMATABLE_PER_PORT    :: 1 << 3
 
 // Given that this extension is still draft, it'll use the event-registry and its own event
 // namespace until we stabilize it.
@@ -41,7 +32,7 @@ Event_Trigger :: struct {
 Trigger_Info :: struct {
 	// stable trigger identifier, it must never change.
 	id:     clap.Clap_Id,
-	flags:  Trigger_Info_Flags,
+	flags:  u32, // see Trigger_Info_Flags
 
 	// in analogy to Param_Info.cookie
 	cookie: rawptr,
@@ -64,43 +55,20 @@ Plugin_Triggers :: struct {
 	get_info: proc "c" (plugin: ^clap.Plugin, index: u32, trigger_info: ^Trigger_Info) -> bool,
 }
 
-Trigger_Rescan_Flags :: enum u32 {
-	// The trigger info did change, use this flag for:
-	// - name change
-	// - module change
-	// New info takes effect immediately.
-	INFO = 1 << 0,
+// Trigger rescan flags (bitmask, OR-able)
+TRIGGER_RESCAN_INFO :: 1 << 0 // Trigger info changed (name, module). Takes effect immediately.
+TRIGGER_RESCAN_ALL  :: 1 << 1 // Full rescan. Only while plugin is deactivated.
 
-	// Invalidates everything the host knows about triggers.
-	// It can only be used while the plugin is deactivated.
-	// If the plugin is activated use Host->restart() and delay any change until the host calls
-	// Plugin->deactivate().
-	//
-	// You must use this flag if:
-	// - some triggers were added or removed.
-	// - some triggers had critical changes:
-	//   - is_per_note (flag)
-	//   - is_per_key (flag)
-	//   - is_per_channel (flag)
-	//   - is_per_port (flag)
-	//   - cookie
-	ALL  = 1 << 1,
-}
-
-Trigger_Clear_Flags :: enum u32 {
-	// Clears all possible references to a trigger
-	ALL         = 1 << 0,
-
-	// Clears all automations to a trigger
-	AUTOMATIONS = 1 << 1,
-}
+// Trigger clear flags (bitmask, OR-able)
+TRIGGER_CLEAR_ALL         :: 1 << 0 // Clears all references to a trigger
+TRIGGER_CLEAR_AUTOMATIONS :: 1 << 1 // Clears all automations to a trigger
 
 Host_Triggers :: struct {
 	// Rescan the full list of triggers according to the flags.
 	// [main-thread]
-	rescan: proc "c" (host: ^clap.Host, flags: Trigger_Rescan_Flags),
+	rescan: proc "c" (host: ^clap.Host, flags: u32),
 
 	// Clears references to a trigger.
 	// [main-thread]
-	clear:  proc "c" (host: ^clap.Host, trigger_id: clap.Clap_Id, flags: Trigger_Clear_Flags),
+	clear:  proc "c" (host: ^clap.Host, trigger_id: clap.Clap_Id, flags: u32),
 }

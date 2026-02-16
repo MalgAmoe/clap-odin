@@ -8,19 +8,11 @@ import clap ".."
 
 EXT_NOTE_PORTS :: "clap.note-ports"
 
-Note_Dialect :: enum u32 {
-	// Uses clap_event_note and clap_event_note_expression.
-	CLAP     = 1 << 0,
-
-	// Uses clap_event_midi, no polyphonic expression
-	MIDI     = 1 << 1,
-
-	// Uses clap_event_midi, with polyphonic expression (MPE)
-	MIDI_MPE = 1 << 2,
-
-	// Uses clap_event_midi2
-	MIDI2    = 1 << 3,
-}
+// Note dialect flags (bitmask, OR-able)
+NOTE_DIALECT_CLAP     :: 1 << 0 // Uses Event_Note and Event_Note_Expression
+NOTE_DIALECT_MIDI     :: 1 << 1 // Uses Event_Midi, no polyphonic expression
+NOTE_DIALECT_MIDI_MPE :: 1 << 2 // Uses Event_Midi, with polyphonic expression (MPE)
+NOTE_DIALECT_MIDI2    :: 1 << 3 // Uses Event_Midi2
 
 Note_Port_Info :: struct {
 	// id identifies a port and must be stable.
@@ -48,16 +40,9 @@ Plugin_Note_Ports :: struct {
 	) -> bool,
 }
 
-Note_Ports_Rescan_Flags :: enum u32 {
-	// The ports have changed, the host shall perform a full scan of the ports.
-	// This flag can only be used if the plugin is not active.
-	// If the plugin active, call host->request_restart() and then call rescan()
-	// when the host calls deactivate()
-	ALL   = 1 << 0,
-
-	// The ports name did change, the host can scan them right away.
-	NAMES = 1 << 1,
-}
+// Note ports rescan flags (bitmask, OR-able)
+NOTE_PORTS_RESCAN_ALL   :: 1 << 0 // Full port scan required (plugin must be deactivated)
+NOTE_PORTS_RESCAN_NAMES :: 1 << 1 // Port names changed, host can scan immediately
 
 Host_Note_Ports :: struct {
 	// Query which dialects the host supports

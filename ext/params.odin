@@ -1,47 +1,44 @@
 package ext
 
-import clap "../../clap-odin"
+import clap ".."
 
 // Parameters extension identifier
 EXT_PARAMS :: "clap.params"
 
-// Parameter information flags
-Param_Info_Flag :: enum u32 {
-	STEPPED                 = 1 << 0, // Is this param stepped? (integer values only)
-	PERIODIC                = 1 << 1, // Is this param periodic? (wrapped around)
-	HIDDEN                  = 1 << 2, // Should not be shown to the user
-	READONLY                = 1 << 3, // Readonly parameter
-	BYPASS                  = 1 << 4, // Is this parameter used to bypass the plugin?
-	AUTOMATABLE             = 1 << 5, // Can this parameter be automated?
-	AUTOMATABLE_PER_NOTE_ID = 1 << 6, // Can this parameter be automated per note id?
-	AUTOMATABLE_PER_KEY     = 1 << 7, // Can this parameter be automated per key?
-	AUTOMATABLE_PER_CHANNEL = 1 << 8, // Can this parameter be automated per channel?
-	AUTOMATABLE_PER_PORT    = 1 << 9, // Can this parameter be automated per port?
-	MODULATABLE             = 1 << 10, // Can this parameter be modulated?
-	MODULATABLE_PER_NOTE_ID = 1 << 11, // Can this parameter be modulated per note id?
-	MODULATABLE_PER_KEY     = 1 << 12, // Can this parameter be modulated per key?
-	MODULATABLE_PER_CHANNEL = 1 << 13, // Can this parameter be modulated per channel?
-	MODULATABLE_PER_PORT    = 1 << 14, // Can this parameter be modulated per port?
-	REQUIRES_PROCESS        = 1 << 15, // Changes to this parameter will only take effect during processing
-}
+// Parameter information flags (bitmask, OR-able)
+PARAM_IS_STEPPED                 :: 1 << 0
+PARAM_IS_PERIODIC                :: 1 << 1
+PARAM_IS_HIDDEN                  :: 1 << 2
+PARAM_IS_READONLY                :: 1 << 3
+PARAM_IS_BYPASS                  :: 1 << 4
+PARAM_IS_AUTOMATABLE             :: 1 << 5
+PARAM_IS_AUTOMATABLE_PER_NOTE_ID :: 1 << 6
+PARAM_IS_AUTOMATABLE_PER_KEY     :: 1 << 7
+PARAM_IS_AUTOMATABLE_PER_CHANNEL :: 1 << 8
+PARAM_IS_AUTOMATABLE_PER_PORT    :: 1 << 9
+PARAM_IS_MODULATABLE             :: 1 << 10
+PARAM_IS_MODULATABLE_PER_NOTE_ID :: 1 << 11
+PARAM_IS_MODULATABLE_PER_KEY     :: 1 << 12
+PARAM_IS_MODULATABLE_PER_CHANNEL :: 1 << 13
+PARAM_IS_MODULATABLE_PER_PORT    :: 1 << 14
+PARAM_REQUIRES_PROCESS           :: 1 << 15
+PARAM_IS_ENUM                    :: 1 << 16
 
-Param_Rescan_Flag :: enum u32 {
-	VALUES = 1 << 0,
-	TEXT   = 1 << 1,
-	INFO   = 1 << 2,
-	ALL    = 1 << 3,
-}
+// Parameter rescan flags (bitmask, OR-able)
+PARAM_RESCAN_VALUES :: 1 << 0
+PARAM_RESCAN_TEXT   :: 1 << 1
+PARAM_RESCAN_INFO   :: 1 << 2
+PARAM_RESCAN_ALL    :: 1 << 3
 
-Param_Clear_Flag :: enum u32 {
-	ALL         = 1 << 0,
-	AUTOMATIONS = 1 << 1,
-	MODULATIONS = 1 << 2,
-}
+// Parameter clear flags (bitmask, OR-able)
+PARAM_CLEAR_ALL         :: 1 << 0
+PARAM_CLEAR_AUTOMATIONS :: 1 << 1
+PARAM_CLEAR_MODULATIONS :: 1 << 2
 
 // Parameter information structure
 Param_Info :: struct {
 	id:            clap.Clap_Id, // Stable parameter identifier
-	flags:         Param_Info_Flag, // Parameter flags
+	flags:         u32, // Parameter flags, see Param_Info_Flag
 	cookie:        rawptr, // Plugin private data
 	name:          [clap.NAME_SIZE]u8, // Parameter name
 	module:        [clap.PATH_SIZE]u8, // Parameter module path (e.g., "Oscillator/Waveform")

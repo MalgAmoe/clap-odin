@@ -32,24 +32,6 @@ Plugin_Descriptor :: struct {
 	features:     [^]cstring,
 }
 
-// Standard plugin factory identifier
-PLUGIN_FACTORY_ID :: "clap.plugin-factory"
-// Plugin factory interface for creating plugin instances
-Plugin_Factory :: struct {
-	// Get the number of plugins available in this factory
-	get_plugin_count:      proc "c" (factory: ^Plugin_Factory) -> u32,
-
-	// Get plugin descriptor by index
-	get_plugin_descriptor: proc "c" (factory: ^Plugin_Factory, index: u32) -> ^Plugin_Descriptor,
-
-	// Create a plugin instance by plugin ID
-	create_plugin:         proc "c" (
-		factory: ^Plugin_Factory,
-		host: ^Host,
-		plugin_id: cstring,
-	) -> ^Plugin,
-}
-
 // Main plugin interface
 Plugin :: struct {
 	desc:             ^Plugin_Descriptor, // Plugin descriptor

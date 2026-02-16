@@ -1,6 +1,6 @@
 package ext
 
-import clap "../../clap-odin"
+import clap ".."
 
 //////////////////////
 // Audio Ports      //
@@ -19,33 +19,19 @@ EXT_AUDIO_PORTS :: "clap.audio-ports"
 AUDIO_PORT_MONO :: "mono"
 AUDIO_PORT_STEREO :: "stereo"
 
-// Audio port flags
-Audio_Port_Flag :: enum u32 {
-	// This port is the main audio input or output.
-	// There can be only one main input and main output.
-	// Main port must be at index 0.
-	IS_MAIN                     = 1 << 0,
+// Audio port flags (bitmask, OR-able)
+AUDIO_PORT_IS_MAIN                     :: 1 << 0 // Main audio input or output, must be at index 0
+AUDIO_PORT_SUPPORTS_64BITS             :: 1 << 1 // This port can be used with 64 bits audio
+AUDIO_PORT_PREFERS_64BITS              :: 1 << 2 // 64 bits audio is preferred with this port
+AUDIO_PORT_REQUIRES_COMMON_SAMPLE_SIZE :: 1 << 3 // Must use same sample size as other ports with this flag
 
-	// This port can be used with 64 bits audio
-	SUPPORTS_64BITS             = 1 << 1,
-
-	// 64 bits audio is preferred with this port
-	PREFERS_64BITS              = 1 << 2,
-
-	// This port must be used with the same sample size as all the other ports which have this flag.
-	// In other words if all ports have this flag then the plugin may either be used entirely with
-	// 64 bits audio or 32 bits audio, but it can't be mixed.
-	REQUIRES_COMMON_SAMPLE_SIZE = 1 << 3,
-}
-
-Audio_Port_Rescan :: enum u32 {
-	NAMES         = 1 << 0,
-	FLAGS         = 1 << 1,
-	CHANNEL_COUNT = 1 << 2,
-	PORT_TYPE     = 1 << 3,
-	IN_PLACE_PAIR = 1 << 4,
-	LIST          = 1 << 5,
-}
+// Audio port rescan flags (bitmask, OR-able)
+AUDIO_PORT_RESCAN_NAMES         :: 1 << 0
+AUDIO_PORT_RESCAN_FLAGS         :: 1 << 1
+AUDIO_PORT_RESCAN_CHANNEL_COUNT :: 1 << 2
+AUDIO_PORT_RESCAN_PORT_TYPE     :: 1 << 3
+AUDIO_PORT_RESCAN_IN_PLACE_PAIR :: 1 << 4
+AUDIO_PORT_RESCAN_LIST          :: 1 << 5
 
 // Audio port information
 Audio_Port_Info :: struct {
@@ -54,7 +40,7 @@ Audio_Port_Info :: struct {
 	flags:         u32, // Audio port flags
 	channel_count: u32, // Number of channels
 	port_type:     cstring, // Port type (e.g., "stereo", "mono")
-	in_place_pair: u32, // For in-place processing, the output port index
+	in_place_pair: clap.Clap_Id, // For in-place processing, the output port index
 }
 
 Plugin_Audio_Ports :: struct {

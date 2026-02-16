@@ -10,34 +10,15 @@ PRESET_DISCOVERY_FACTORY_ID :: "clap.preset-discovery-factory/2"
 // This compat ID may be removed in 2026.
 PRESET_DISCOVERY_FACTORY_ID_COMPAT :: "clap.preset-discovery-factory/draft-2"
 
-Preset_Discovery_Location_Kind :: enum u32 {
-	// The preset are located in a file on the OS filesystem.
-	// The location is then a path which works with the OS file system functions (open, stat, ...)
-	// So both '/' and '\' shall work on Windows as a separator.
-	FILE   = 0,
+// Preset discovery location kinds
+PRESET_DISCOVERY_LOCATION_FILE   :: 0 // Presets are on the OS filesystem
+PRESET_DISCOVERY_LOCATION_PLUGIN :: 1 // Presets are bundled within the plugin DSO
 
-	// The preset is bundled within the plugin DSO itself.
-	// The location must then be null, as the preset are within the plugin itself and then the plugin
-	// will act as a preset container.
-	PLUGIN = 1,
-}
-
-Preset_Discovery_Flags :: enum u32 {
-	// This is for factory or sound-pack presets.
-	IS_FACTORY_CONTENT = 1 << 0,
-
-	// This is for user presets.
-	IS_USER_CONTENT    = 1 << 1,
-
-	// This location is meant for demo presets, those are preset which may trigger
-	// some limitation in the plugin because they require additional features which the user
-	// needs to purchase or the content itself needs to be bought and is only available in
-	// demo mode.
-	IS_DEMO_CONTENT    = 1 << 2,
-
-	// This preset is a user's favorite
-	IS_FAVORITE        = 1 << 3,
-}
+// Preset discovery flags (bitmask, OR-able)
+PRESET_DISCOVERY_IS_FACTORY_CONTENT :: 1 << 0 // Factory or sound-pack presets
+PRESET_DISCOVERY_IS_USER_CONTENT    :: 1 << 1 // User presets
+PRESET_DISCOVERY_IS_DEMO_CONTENT    :: 1 << 2 // Demo presets (may trigger limitations)
+PRESET_DISCOVERY_IS_FAVORITE        :: 1 << 3 // User's favorite
 
 // Receiver that receives the metadata for a single preset file.
 // The host would define the various callbacks in this interface and the preset parser function

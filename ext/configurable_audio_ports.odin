@@ -1,6 +1,6 @@
 package ext
 
-import clap "../../clap-odin"
+import clap ".."
 
 //////////////////////
 // Configurable Audio Ports //
@@ -10,6 +10,7 @@ import clap "../../clap-odin"
 
 // Configurable audio ports extension identifier  
 EXT_CONFIGURABLE_AUDIO_PORTS :: "clap.configurable-audio-ports/1"
+EXT_CONFIGURABLE_AUDIO_PORTS_COMPAT :: "clap.configurable-audio-ports.draft1"
 
 // Audio port configuration request
 Audio_Port_Configuration_Request :: struct {

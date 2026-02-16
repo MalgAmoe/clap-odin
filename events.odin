@@ -1,44 +1,29 @@
 package clap
 
 // The clap core event space
-CORE_EVENT_SPACE_ID :: 0
+CORE_EVENT_SPACE_ID : u16 : 0
 
-// Event flags for additional event metadata
-Event_Flags :: enum u32 {
-	// Indicate a live user event, for example a user turning a physical knob
-	// or playing a physical key.
-	IS_LIVE     = 1 << 0,
-	// Indicate that the event should not be recorded.
-	// For example this is useful when a parameter changes because of a MIDI CC,
-	// because if the host records both the MIDI CC automation and the parameter
-	// automation there will be a conflict.
-	DONT_RECORD = 1 << 1,
-}
+// Event flags for additional event metadata (bitmask, OR-able)
+EVENT_IS_LIVE     :: 1 << 0 // Live user event, e.g. turning a physical knob or playing a key
+EVENT_DONT_RECORD :: 1 << 1 // Event should not be recorded (e.g. from MIDI CC that's already recorded)
 
-// Core event types
-// Some of the following events overlap, a note on can be expressed with:
-// - CLAP_EVENT_NOTE_ON
-// - CLAP_EVENT_MIDI  
-// - CLAP_EVENT_MIDI2
-//
-// The preferred way of sending a note event is to use CLAP_EVENT_NOTE_*.
+// Core event types. The event type space is extensible via clap_host_event_registry.
+// The preferred way of sending a note event is to use EVENT_NOTE_*.
 // The same event must not be sent twice: it is forbidden to send the same note on
-// encoded with both CLAP_EVENT_NOTE_ON and CLAP_EVENT_MIDI.
-Event_Type :: enum u16 {
-	NOTE_ON             = 0, // Note on event
-	NOTE_OFF            = 1, // Note off event
-	NOTE_CHOKE          = 2, // Note choke event (immediate stop)
-	NOTE_END            = 3, // Note end event
-	NOTE_EXPRESSION     = 4, // Note expression change
-	PARAM_VALUE         = 5, // Parameter value change
-	PARAM_MOD           = 6, // Parameter modulation
-	PARAM_GESTURE_BEGIN = 7, // Parameter gesture begin
-	PARAM_GESTURE_END   = 8, // Parameter gesture end
-	TRANSPORT           = 9, // Transport information
-	MIDI                = 10, // MIDI event
-	MIDI_SYSEX          = 11, // MIDI System Exclusive
-	MIDI2               = 12, // MIDI 2.0 event
-}
+// encoded with both EVENT_NOTE_ON and EVENT_MIDI.
+EVENT_NOTE_ON             : u16 : 0
+EVENT_NOTE_OFF            : u16 : 1
+EVENT_NOTE_CHOKE          : u16 : 2
+EVENT_NOTE_END            : u16 : 3
+EVENT_NOTE_EXPRESSION     : u16 : 4
+EVENT_PARAM_VALUE         : u16 : 5
+EVENT_PARAM_MOD           : u16 : 6
+EVENT_PARAM_GESTURE_BEGIN : u16 : 7
+EVENT_PARAM_GESTURE_END   : u16 : 8
+EVENT_TRANSPORT           : u16 : 9
+EVENT_MIDI                : u16 : 10
+EVENT_MIDI_SYSEX          : u16 : 11
+EVENT_MIDI2               : u16 : 12
 
 // Event header - all clap events start with this header to determine the overall
 // size of the event and its type and space (a namespacing for types).
@@ -48,8 +33,8 @@ Event_Header :: struct {
 	size:       u32, // event size including this header, eg: sizeof(Event_Note)
 	time:       u32, // sample offset within the buffer for this event
 	space_id:   u16, // event space, see clap_host_event_registry
-	event_type: Event_Type, // event type
-	flags:      Event_Flags, // see Event_Flags
+	event_type: u16, // event type, see Event_Type
+	flags:      u32, // see Event_Flags
 }
 
 // Input event list interface
@@ -134,16 +119,15 @@ Event_Param_Gesture :: struct {
 //////////////////////
 // Transport Events //
 //////////////////////
-Transport_Flags :: enum u32 {
-	HAS_TEMPO            = 1 << 0,
-	HAS_BEATS_TIMELINE   = 1 << 1,
-	HAS_SECONDS_TIMELINE = 1 << 2,
-	HAS_TIME_SIGNATURE   = 1 << 3,
-	IS_PLAYING           = 1 << 4,
-	IS_RECORDING         = 1 << 5,
-	IS_LOOP_ACTIVE       = 1 << 6,
-	IS_WITHIN_PRE_ROLL   = 1 << 7,
-}
+// Transport flags (bitmask, OR-able)
+TRANSPORT_HAS_TEMPO            :: 1 << 0
+TRANSPORT_HAS_BEATS_TIMELINE   :: 1 << 1
+TRANSPORT_HAS_SECONDS_TIMELINE :: 1 << 2
+TRANSPORT_HAS_TIME_SIGNATURE   :: 1 << 3
+TRANSPORT_IS_PLAYING           :: 1 << 4
+TRANSPORT_IS_RECORDING         :: 1 << 5
+TRANSPORT_IS_LOOP_ACTIVE       :: 1 << 6
+TRANSPORT_IS_WITHIN_PRE_ROLL   :: 1 << 7
 
 Event_Transport :: struct {
 	header:             Event_Header,
@@ -158,8 +142,8 @@ Event_Transport :: struct {
 	loop_end_seconds:   Sec_Time,
 	bar_start:          Beat_Time,
 	bar_number:         i32,
-	tsig_num:           i16,
-	tsig_denum:         i16,
+	tsig_num:           u16,
+	tsig_denom:         u16,
 }
 
 /////////////////
@@ -181,5 +165,5 @@ Event_Midi_Sysex :: struct {
 Event_Midi2 :: struct {
 	header:     Event_Header,
 	port_index: u16,
-	data:       [4]u8,
+	data:       [4]u32,
 }

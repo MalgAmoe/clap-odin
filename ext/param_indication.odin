@@ -18,23 +18,12 @@ EXT_PARAM_INDICATION :: "clap.param-indication/4"
 // This compat ID may be removed in 2026.
 EXT_PARAM_INDICATION_COMPAT :: "clap.param-indication.draft/4"
 
-Param_Indication_Automation :: enum u32 {
-	// The host doesn't have an automation for this parameter
-	NONE       = 0,
-
-	// The host has an automation for this parameter, but it isn't playing it
-	PRESENT    = 1,
-
-	// The host is playing an automation for this parameter
-	PLAYING    = 2,
-
-	// The host is recording an automation on this parameter
-	RECORDING  = 3,
-
-	// The host should play an automation for this parameter, but the user has started to adjust this
-	// parameter and is overriding the automation playback
-	OVERRIDING = 4,
-}
+// Param indication automation states
+PARAM_INDICATION_AUTOMATION_NONE       :: 0 // No automation for this parameter
+PARAM_INDICATION_AUTOMATION_PRESENT    :: 1 // Has automation, but not playing
+PARAM_INDICATION_AUTOMATION_PLAYING    :: 2 // Playing automation
+PARAM_INDICATION_AUTOMATION_RECORDING  :: 3 // Recording automation
+PARAM_INDICATION_AUTOMATION_OVERRIDING :: 4 // User is overriding automation playback
 
 Plugin_Param_Indication :: struct {
 	// Sets or clears a mapping indication.

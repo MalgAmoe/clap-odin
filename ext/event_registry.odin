@@ -1,6 +1,6 @@
 package ext
 
-import clap "../../clap-odin"
+import clap ".."
 
 EXT_EVENT_REGISTRY :: "clap.event-registry"
 

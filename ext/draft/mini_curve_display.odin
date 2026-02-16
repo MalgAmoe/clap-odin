@@ -7,38 +7,13 @@ import clap "../.."
 
 EXT_MINI_CURVE_DISPLAY :: "clap.mini-curve-display/3"
 
-Mini_Curve_Display_Curve_Kind :: enum i32 {
-	// If the curve's kind doesn't fit in any proposed kind, use this one
-	// and perhaps, make a pull request to extend the list.
-	UNSPECIFIED    = 0,
-
-	// The mini curve is intended to draw the total gain response of the plugin.
-	// In this case the y values are in dB and the x values are in Hz (logarithmic).
-	// This would be useful in for example an equalizer.
-	GAIN_RESPONSE  = 1,
-
-	// The mini curve is intended to draw the total phase response of the plugin.
-	// In this case the y values are in radians and the x values are in Hz (logarithmic).
-	// This would be useful in for example an equalizer.
-	PHASE_RESPONSE = 2,
-
-	// The mini curve is intended to draw the transfer curve of the plugin.
-	// In this case the both x and y values are in dB.
-	// This would be useful in for example a compressor or distortion plugin.
-	TRANSFER_CURVE = 3,
-
-	// This mini curve is intended to draw gain reduction over time. In this case
-	// x refers to the window in seconds and y refers to level in dB, x_min is
-	// always 0, and x_max would be the duration of the window.
-	// This would be useful in for example a compressor or limiter.
-	GAIN_REDUCTION = 4,
-
-	// This curve is intended as a generic time series plot. In this case
-	// x refers to the window in seconds. x_min is always 0, and x_max would be the duration of the
-	// window.
-	// Y is not specified and up to the plugin.
-	TIME_SERIES    = 5,
-}
+// Mini curve display curve kinds
+MINI_CURVE_KIND_UNSPECIFIED    :: 0 // Doesn't fit in any proposed kind
+MINI_CURVE_KIND_GAIN_RESPONSE  :: 1 // Total gain response (y: dB, x: Hz logarithmic), e.g. EQ
+MINI_CURVE_KIND_PHASE_RESPONSE :: 2 // Total phase response (y: radians, x: Hz logarithmic), e.g. EQ
+MINI_CURVE_KIND_TRANSFER_CURVE :: 3 // Transfer curve (both x and y in dB), e.g. compressor/distortion
+MINI_CURVE_KIND_GAIN_REDUCTION :: 4 // Gain reduction over time (x: seconds, y: dB), e.g. compressor/limiter
+MINI_CURVE_KIND_TIME_SERIES    :: 5 // Generic time series (x: seconds, y: unspecified)
 
 Mini_Curve_Display_Curve_Hints :: struct {
 	// Range for the x axis.
@@ -110,15 +85,9 @@ Plugin_Mini_Curve_Display :: struct {
 	) -> bool,
 }
 
-Mini_Curve_Display_Change_Flags :: enum u32 {
-	// Informs the host that the curve content changed.
-	// Can only be called if the curve is observed and is static.
-	CURVE_CHANGED     = 1 << 0,
-
-	// Informs the host that the curve axis name changed.
-	// Can only be called if the curve is observed.
-	AXIS_NAME_CHANGED = 1 << 1,
-}
+// Mini curve display change flags (bitmask, OR-able)
+MINI_CURVE_CHANGE_CURVE     :: 1 << 0 // Curve content changed (only if observed and static)
+MINI_CURVE_CHANGE_AXIS_NAME :: 1 << 1 // Curve axis name changed (only if observed)
 
 Host_Mini_Curve_Display :: struct {
 	// Fills in the given Mini_Curve_Display_Curve_Hints structure and returns

@@ -12,20 +12,13 @@ EXT_TRACK_INFO :: "clap.track-info/1"
 // This compat ID may be removed in 2026.
 EXT_TRACK_INFO_COMPAT :: "clap.track-info.draft/1"
 
-Track_Info_Flags :: enum u64 {
-	HAS_TRACK_NAME      = 1 << 0,
-	HAS_TRACK_COLOR     = 1 << 1,
-	HAS_AUDIO_CHANNEL   = 1 << 2,
-
-	// This plugin is on a return track, initialize with wet 100%
-	IS_FOR_RETURN_TRACK = 1 << 3,
-
-	// This plugin is on a bus track, initialize with appropriate settings for bus processing
-	IS_FOR_BUS          = 1 << 4,
-
-	// This plugin is on the master, initialize with appropriate settings for channel processing
-	IS_FOR_MASTER       = 1 << 5,
-}
+// Track info flags (bitmask, OR-able)
+TRACK_INFO_HAS_TRACK_NAME      :: 1 << 0
+TRACK_INFO_HAS_TRACK_COLOR     :: 1 << 1
+TRACK_INFO_HAS_AUDIO_CHANNEL   :: 1 << 2
+TRACK_INFO_IS_FOR_RETURN_TRACK :: 1 << 3 // On a return track, initialize with wet 100%
+TRACK_INFO_IS_FOR_BUS          :: 1 << 4 // On a bus track
+TRACK_INFO_IS_FOR_MASTER       :: 1 << 5 // On the master
 
 Track_Info :: struct {
 	flags:               u64, // see Track_Info_Flags above

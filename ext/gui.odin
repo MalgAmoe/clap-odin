@@ -1,6 +1,6 @@
 package ext
 
-import clap "../../clap-odin"
+import clap ".."
 import "core:c"
 
 EXT_GUI :: "clap.gui"
@@ -22,12 +22,16 @@ hwnd :: rawptr // Win32
 nsview :: rawptr // Cocoa
 xwnd :: c.ulong // X11
 
+Window_Handle :: struct #raw_union {
+	cocoa: rawptr, // nsview
+	x11:   xwnd,
+	win32: rawptr, // hwnd
+	ptr:   rawptr,
+}
+
 Window :: struct {
 	api:    cstring,
-	handle: union {
-		rawptr, // hwnd, nsview, other
-		xwnd, // X11
-	},
+	handle: Window_Handle,
 }
 
 Gui_Resize_Hints :: struct {
@@ -40,7 +44,7 @@ Gui_Resize_Hints :: struct {
 
 Plugin_Gui :: struct {
 	is_api_supported:  proc "c" (plugin: ^clap.Plugin, api: cstring, is_floating: bool) -> bool,
-	get_preferred_api: proc "c" (plugin: ^clap.Plugin, api: ^cstring, is_floating: bool) -> bool,
+	get_preferred_api: proc "c" (plugin: ^clap.Plugin, api: ^cstring, is_floating: ^bool) -> bool,
 	create:            proc "c" (plugin: ^clap.Plugin, api: cstring, is_floating: bool) -> bool,
 	destroy:           proc "c" (plugin: ^clap.Plugin),
 	set_scale:         proc "c" (plugin: ^clap.Plugin, scale: f64) -> bool,
@@ -58,7 +62,7 @@ Plugin_Gui :: struct {
 
 Host_Gui :: struct {
 	resize_hints_changed: proc "c" (host: ^clap.Host),
-	request_resize:       proc "c" (host: ^clap.Host) -> bool,
+	request_resize:       proc "c" (host: ^clap.Host, width: u32, height: u32) -> bool,
 	request_show:         proc "c" (host: ^clap.Host) -> bool,
 	request_hide:         proc "c" (host: ^clap.Host) -> bool,
 	closed:               proc "c" (host: ^clap.Host, was_destroyed: bool),

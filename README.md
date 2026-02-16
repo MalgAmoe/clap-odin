@@ -4,7 +4,7 @@ Odin language bindings for the CLAP (CLever Audio Plugin) API.
 
 ## Overview
 
-This package provides complete Odin bindings for CLAP v1.2.6, enabling developers to create audio plugins using the Odin programming language. The bindings follow the same structure as the official C headers while providing type-safe, idiomatic Odin interfaces.
+This package provides complete Odin bindings for CLAP v1.2.7, enabling developers to create audio plugins using the Odin programming language. The bindings follow the same structure as the official C headers while providing type-safe, idiomatic Odin interfaces.
 
 ## Features
 
@@ -64,7 +64,7 @@ clap_entry := clap.Plugin_Entry {
         // Cleanup if needed
     },
     get_factory = proc "c" (factory_id: cstring) -> rawptr {
-        if factory_id == clap.PLUGIN_FACTORY_ID {
+        if factory_id == clap_factory.PLUGIN_FACTORY_ID {
             return &plugin_factory
         }
         return nil
@@ -77,18 +77,18 @@ clap_entry := clap.Plugin_Entry {
 The factory creates plugin instances:
 
 ```odin
-plugin_factory := clap.Plugin_Factory {
-    get_plugin_count = proc "c" (factory: ^clap.Plugin_Factory) -> u32 {
+plugin_factory := clap_factory.Plugin_Factory {
+    get_plugin_count = proc "c" (factory: ^clap_factory.Plugin_Factory) -> u32 {
         return 1
     },
     get_plugin_descriptor = proc "c" (
-        factory: ^clap.Plugin_Factory,
+        factory: ^clap_factory.Plugin_Factory,
         index: u32,
     ) -> ^clap.Plugin_Descriptor {
         // Return plugin descriptor
     },
     create_plugin = proc "c" (
-        factory: ^clap.Plugin_Factory,
+        factory: ^clap_factory.Plugin_Factory,
         host: ^clap.Host,
         plugin_id: cstring,
     ) -> ^clap.Plugin {
@@ -243,7 +243,7 @@ Use the official [CLAP validator](https://github.com/free-audio/clap-validator) 
 
 ## CLAP Version
 
-These bindings are compatible with CLAP v1.2.6.
+These bindings are compatible with CLAP v1.2.7.
 
 ## License
 

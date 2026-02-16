@@ -12,21 +12,16 @@ EXT_AMBISONIC_COMPAT :: "clap.ambisonic.draft/3"
 
 PORT_AMBISONIC :: "ambisonic"
 
-Ambisonic_Ordering :: enum u32 {
-	// FuMa channel ordering
-	FUMA = 0,
+// Ambisonic ordering values
+AMBISONIC_ORDERING_FUMA :: 0 // FuMa channel ordering
+AMBISONIC_ORDERING_ACN  :: 1 // ACN channel ordering
 
-	// ACN channel ordering
-	ACN  = 1,
-}
-
-Ambisonic_Normalization :: enum u32 {
-	MAXN = 0,
-	SN3D = 1,
-	N3D  = 2,
-	SN2D = 3,
-	N2D  = 4,
-}
+// Ambisonic normalization values
+AMBISONIC_NORMALIZATION_MAXN :: 0
+AMBISONIC_NORMALIZATION_SN3D :: 1
+AMBISONIC_NORMALIZATION_N3D  :: 2
+AMBISONIC_NORMALIZATION_SN2D :: 3
+AMBISONIC_NORMALIZATION_N2D  :: 4
 
 Ambisonic_Config :: struct {
 	ordering:      u32, // see Ambisonic_Ordering

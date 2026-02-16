@@ -1,6 +1,6 @@
 package ext
 
-import clap "../../clap-odin"
+import clap ".."
 
 //////////////////////
 // State Context   //
@@ -16,11 +16,9 @@ import clap "../../clap-odin"
 EXT_STATE_CONTEXT :: "clap.state-context/2"
 
 // State context types
-State_Context_Type :: enum u32 {
-	FOR_PRESET    = 1, // suitable for storing and loading a state as a preset
-	FOR_DUPLICATE = 2, // suitable for duplicating a plugin instance
-	FOR_PROJECT   = 3, // suitable for storing and loading a state within a project/song
-}
+STATE_CONTEXT_FOR_PRESET    :: 1 // Suitable for storing and loading a state as a preset
+STATE_CONTEXT_FOR_DUPLICATE :: 2 // Suitable for duplicating a plugin instance
+STATE_CONTEXT_FOR_PROJECT   :: 3 // Suitable for storing and loading a state within a project/song
 
 // Plugin state context interface
 Plugin_State_Context :: struct {

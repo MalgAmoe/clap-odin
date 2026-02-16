@@ -11,11 +11,9 @@ EXT_CONTEXT_MENU :: "clap.context-menu/1"
 // This compat ID may be removed in 2026.
 EXT_CONTEXT_MENU_COMPAT :: "clap.context-menu.draft/0"
 
-// There can be different target kind for a context menu
-Context_Menu_Target_Kind :: enum u32 {
-	GLOBAL = 0,
-	PARAM  = 1,
-}
+// Context menu target kinds
+CONTEXT_MENU_TARGET_KIND_GLOBAL :: 0
+CONTEXT_MENU_TARGET_KIND_PARAM  :: 1
 
 // Describes the context menu target
 Context_Menu_Target :: struct {

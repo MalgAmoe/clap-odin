@@ -7,52 +7,23 @@ import clap "../.."
 
 EXT_PROJECT_LOCATION :: "clap.project-location/2"
 
-Project_Location_Kind :: enum u32 {
-	// Represents a document/project/session.
-	PROJECT             = 1,
+// Project location kinds
+PROJECT_LOCATION_PROJECT             :: 1 // Document/project/session
+PROJECT_LOCATION_TRACK_GROUP         :: 2 // Group of tracks
+PROJECT_LOCATION_TRACK               :: 3 // Single track, contains devices (serial)
+PROJECT_LOCATION_DEVICE              :: 4 // Single device, can contain nested device chains
+PROJECT_LOCATION_NESTED_DEVICE_CHAIN :: 5 // Nested device chain (serial), parent must be a device
 
-	// Represents a group of tracks.
-	// It can contain track groups, tracks, and devices (post processing).
-	// The first device within a track group has the index of
-	// the last track or track group within this group + 1.
-	TRACK_GROUP         = 2,
+// Project location track kinds
+PROJECT_LOCATION_INSTRUMENT_TRACK :: 1
+PROJECT_LOCATION_AUDIO_TRACK      :: 2
+PROJECT_LOCATION_HYBRID_TRACK     :: 3 // Both instrument and audio
+PROJECT_LOCATION_RETURN_TRACK     :: 4
+PROJECT_LOCATION_MASTER_TRACK     :: 5 // Processes the sum of all children tracks
 
-	// Represents a single track.
-	// It contains devices (serial).
-	TRACK               = 3,
-
-	// Represents a single device.
-	// It can contain other nested device chains.
-	DEVICE              = 4,
-
-	// Represents a nested device chain (serial).
-	// Its parent must be a device.
-	// It contains other devices.
-	NESTED_DEVICE_CHAIN = 5,
-}
-
-Project_Location_Track_Kind :: enum u32 {
-	// This track is an instrument track.
-	INSTRUMENT_TRACK = 1,
-
-	// This track is an audio track.
-	AUDIO_TRACK      = 2,
-
-	// This track is both an instrument and audio track.
-	HYBRID_TRACK     = 3,
-
-	// This track is a return track.
-	RETURN_TRACK     = 4,
-
-	// This track is a master track.
-	// Each group have a master track for processing the sum of all its children tracks.
-	MASTER_TRACK     = 5,
-}
-
-Project_Location_Flags :: enum u64 {
-	HAS_INDEX = 1 << 0,
-	HAS_COLOR = 1 << 1,
-}
+// Project location flags (bitmask, OR-able)
+PROJECT_LOCATION_HAS_INDEX :: 1 << 0
+PROJECT_LOCATION_HAS_COLOR :: 1 << 1
 
 Project_Location_Element :: struct {
 	// A bit-mask, see Project_Location_Flags.
