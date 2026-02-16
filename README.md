@@ -98,6 +98,14 @@ clap-odin/                        C header
         └── plugin_state_converter.odin plugin-state-converter.h
 ```
 
+## Example
+
+`example/` contains a complete ZDF SVF (state-variable filter) plugin -- stereo processing, sample-accurate parameter automation, state save/load. ~230 lines.
+
+```bash
+odin build example -build-mode:dll -out:zdf_svf.clap
+```
+
 ## Building
 
 Build your plugin as a shared library with the `.clap` extension:

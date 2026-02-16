@@ -17,17 +17,17 @@ Sec_Time :: distinct i64 // clap_sectime
 
 // Conversion helpers
 beats_to_fixed :: proc(beats: f64) -> Beat_Time {
-	return Beat_Time(math.round(BEATTIME_FACTOR * beats))
+	return Beat_Time(math.round(f64(BEATTIME_FACTOR) * beats))
 }
 
 fixed_to_beats :: proc(fixed: Beat_Time) -> f64 {
-	return f64(fixed) / BEATTIME_FACTOR
+	return f64(fixed) / f64(BEATTIME_FACTOR)
 }
 
 seconds_to_fixed :: proc(seconds: f64) -> Sec_Time {
-	return Sec_Time(math.round(SECTIME_FACTOR * seconds))
+	return Sec_Time(math.round(f64(SECTIME_FACTOR) * seconds))
 }
 
 fixed_to_seconds :: proc(fixed: Sec_Time) -> f64 {
-	return f64(fixed) / SECTIME_FACTOR
+	return f64(fixed) / f64(SECTIME_FACTOR)
 }
