@@ -1,7 +1,5 @@
 package clap
 
-import "core:c"
-
 // This interface is the entry point of the dynamic library.
 //
 // CLAP plugins standard search path:

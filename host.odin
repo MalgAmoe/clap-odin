@@ -1,7 +1,5 @@
 package clap
 
-import "core:c"
-
 // Host interface provided by the host to the plugin
 Host :: struct {
 	clap_version:     Version, // initialized to CLAP_VERSION

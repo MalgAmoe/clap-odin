@@ -1,250 +1,117 @@
 # CLAP-Odin
 
-Odin language bindings for the CLAP (CLever Audio Plugin) API.
+Odin bindings for [CLAP](https://github.com/free-audio/clap) (CLever Audio Plugin) v1.2.7.
 
-## Overview
+## Packages
 
-This package provides complete Odin bindings for CLAP v1.2.7, enabling developers to create audio plugins using the Odin programming language. The bindings follow the same structure as the official C headers while providing type-safe, idiomatic Odin interfaces.
-
-## Features
-
-- **Complete CLAP API coverage**: All core CLAP interfaces and extensions
-- **Type safety**: Leverages Odin's type system for safer plugin development
-- **Zero-cost abstractions**: Direct mapping to C structures with no overhead
-- **Extension support**: Audio ports, parameters, GUI, state management, and more
-- **Memory safe**: Proper handling of C interop with Odin's memory management
-
-## Structure
-
-The bindings are organized to mirror the official CLAP structure:
-
-```
-clap-odin/
-├── README.md              # This file
-├── entry.odin             # Plugin entry points and factory interface
-├── plugin.odin            # Core plugin interface and lifecycle
-├── host.odin              # Host interface for plugin communication
-├── process.odin           # Audio processing structures and enums
-├── audio_buffer.odin      # Audio buffer management
-├── events.odin            # Event handling system
-├── stream.odin            # I/O stream interfaces for state save/load
-├── version.odin           # CLAP version constants
-├── consts_n_types.odin    # Core constants and type definitions
-└── ext/                   # CLAP extensions
-    ├── audio_ports.odin   # Audio port configuration
-    ├── params.odin        # Parameter automation
-    ├── state.odin         # Plugin state management
-    ├── gui.odin           # Graphical user interface
-    ├── latency.odin       # Latency reporting
-    ├── log.odin           # Logging interface
-    ├── note.odin          # Note handling
-    ├── render.odin        # Offline rendering
-    ├── tail.odin          # Audio tail handling
-    ├── thread.odin        # Thread checking
-    ├── timer.odin         # Timer support
-    ├── voice_info.odin    # Voice information
-    └── draft/             # Draft extensions
-        └── scratch_memory.odin
-```
-
-## Core Concepts
-
-### Plugin Entry Point
-
-Every CLAP plugin must export a `clap_entry` symbol:
+There are 5 Odin packages, matching the C header directory layout:
 
 ```odin
-@(export)
-clap_entry := clap.Plugin_Entry {
-    clap_version = clap.CLAP_VERSION,
-    init = proc "c" (plugin_path: cstring) -> bool {
-        return true
-    },
-    deinit = proc "c" () {
-        // Cleanup if needed
-    },
-    get_factory = proc "c" (factory_id: cstring) -> rawptr {
-        if factory_id == clap_factory.PLUGIN_FACTORY_ID {
-            return &plugin_factory
-        }
-        return nil
-    },
-}
+import clap "clap-odin"                      // Core types: Plugin, Host, events, streams, process
+import clap_ext "clap-odin/ext"              // Stable extensions: params, gui, state, audio ports, ...
+import clap_ext_draft "clap-odin/ext/draft"  // Draft extensions: webview, triggers, undo, ...
+import clap_factory "clap-odin/factory"      // Factories: plugin factory, preset discovery
+import clap_factory_draft "clap-odin/factory/draft" // Draft factories: state converter, invalidation
 ```
 
-### Plugin Factory
+## Naming conventions
 
-The factory creates plugin instances:
+C names map to Odin names with these rules:
 
-```odin
-plugin_factory := clap_factory.Plugin_Factory {
-    get_plugin_count = proc "c" (factory: ^clap_factory.Plugin_Factory) -> u32 {
-        return 1
-    },
-    get_plugin_descriptor = proc "c" (
-        factory: ^clap_factory.Plugin_Factory,
-        index: u32,
-    ) -> ^clap.Plugin_Descriptor {
-        // Return plugin descriptor
-    },
-    create_plugin = proc "c" (
-        factory: ^clap_factory.Plugin_Factory,
-        host: ^clap.Host,
-        plugin_id: cstring,
-    ) -> ^clap.Plugin {
-        // Create and return plugin instance
-    },
-}
+| C | Odin | Example |
+|---|------|---------|
+| `clap_` prefix on types | dropped (package is the namespace) | `clap_plugin_t` -> `clap.Plugin` |
+| `clap_` prefix on extension types | dropped | `clap_plugin_gui_t` -> `ext.Plugin_Gui` |
+| `CLAP_` prefix on constants | dropped | `CLAP_EXT_GUI` -> `ext.EXT_GUI` |
+| snake_case types | Pascal_Case | `clap_event_header_t` -> `Event_Header` |
+| SCREAMING_SNAKE constants | kept as-is | `CLAP_INVALID_ID` -> `INVALID_ID` |
+| Bitmask flags | plain constants (OR-able) | `CLAP_PARAM_IS_AUTOMATABLE` -> `PARAM_IS_AUTOMATABLE` |
+| Single-value selectors | Odin `enum` | `clap_process_status` -> `Process_Status` |
+| File names | `kebab-case.h` -> `snake_case.odin` | `audio-ports.h` -> `audio_ports.odin` |
+
+## File mapping
+
+Every Odin file maps 1:1 to a C header:
+
 ```
-
-### Plugin Implementation
-
-Core plugin interface with lifecycle methods:
-
-```odin
-plugin := clap.Plugin {
-    desc = &plugin_descriptor,
-    plugin_data = your_plugin_data,
-    init = plugin_init,
-    destroy = plugin_destroy,
-    activate = plugin_activate,
-    deactivate = plugin_deactivate,
-    start_processing = plugin_start_processing,
-    stop_processing = plugin_stop_processing,
-    reset = plugin_reset,
-    process = plugin_process,
-    get_extension = plugin_get_extension,
-    on_main_thread = plugin_on_main_thread,
-}
-```
-
-### Audio Processing
-
-The process callback handles real-time audio:
-
-```odin
-plugin_process :: proc "c" (plugin: ^clap.Plugin, process: ^clap.Process) -> clap.Process_Status {
-    // Process parameter events
-    // Process audio samples
-    // Generate output events if needed
-    return .CONTINUE
-}
-```
-
-## Extensions
-
-Extensions provide additional functionality beyond the core plugin interface:
-
-### Audio Ports
-
-Define input/output audio ports:
-
-```odin
-plugin_audio_ports := ext.Plugin_Audio_Ports {
-    count = proc "c" (plugin: ^clap.Plugin, is_input: bool) -> u32 {
-        return 1 // One stereo input/output
-    },
-    get = proc "c" (
-        plugin: ^clap.Plugin,
-        index: u32,
-        is_input: bool,
-        info: ^ext.Audio_Port_Info,
-    ) -> bool {
-        // Fill port information
-        return true
-    },
-}
-```
-
-### Parameters
-
-Expose automatable parameters:
-
-```odin
-plugin_params := ext.Plugin_Params {
-    count = proc "c" (plugin: ^clap.Plugin) -> u32 {
-        return 2 // Number of parameters
-    },
-    get_info = proc "c" (
-        plugin: ^clap.Plugin,
-        param_index: u32,
-        param_info: ^ext.Param_Info,
-    ) -> bool {
-        // Fill parameter information
-        return true
-    },
-    get_value = proc "c" (plugin: ^clap.Plugin, param_id: clap.Clap_Id, out_value: ^f64) -> bool {
-        // Return current parameter value
-        return true
-    },
-    // Additional parameter methods...
-}
-```
-
-### State Management
-
-Save and load plugin state:
-
-```odin
-plugin_state := ext.Plugin_State {
-    save = proc "c" (plugin: ^clap.Plugin, stream: ^clap.OStream) -> bool {
-        // Write plugin state to stream
-        return true
-    },
-    load = proc "c" (plugin: ^clap.Plugin, stream: ^clap.IStream) -> bool {
-        // Read plugin state from stream  
-        return true
-    },
-}
-```
-
-## Memory Management
-
-### C Interop Guidelines
-
-- Use `proc "c"` calling convention for all CLAP callbacks
-- Manage memory carefully when interfacing with the host
-- Avoid dynamic allocation in real-time audio callbacks
-- Use pre-allocated buffers for parameter text display
-
-### String Handling
-
-CLAP uses C-style null-terminated strings. Use Odin's string conversion utilities:
-
-```odin
-// Converting Odin string to C string buffer
-runtime.copy_from_string(info.name[:], "Parameter Name")
-
-// Converting C string to Odin string
-id_str := string(plugin_id)
+clap-odin/                        C header
+├── audio_buffer.odin             audio-buffer.h
+├── color.odin                    color.h
+├── entry.odin                    entry.h
+├── events.odin                   events.h
+├── fixedpoint.odin               fixedpoint.h
+├── host.odin                     host.h
+├── id.odin                       id.h
+├── plugin.odin                   plugin.h
+├── plugin_features.odin          plugin-features.h
+├── process.odin                  process.h
+├── stream.odin                   stream.h
+├── string_sizes.odin             string-sizes.h
+├── timestamp.odin                timestamp.h
+├── universal_plugin_id.odin      universal-plugin-id.h
+├── version.odin                  version.h
+├── ext/                          ext/
+│   ├── ambisonic.odin            ambisonic.h
+│   ├── audio_ports.odin          audio-ports.h
+│   ├── audio_ports_activation.odin audio-ports-activation.h
+│   ├── audio_ports_config.odin   audio-ports-config.h
+│   ├── configurable_audio_ports.odin configurable-audio-ports.h
+│   ├── context_menu.odin         context-menu.h
+│   ├── event_registry.odin       event-registry.h
+│   ├── gui.odin                  gui.h
+│   ├── latency.odin              latency.h
+│   ├── log.odin                  log.h
+│   ├── note_name.odin            note-name.h
+│   ├── note_ports.odin           note-ports.h
+│   ├── param_indication.odin     param-indication.h
+│   ├── params.odin               params.h
+│   ├── posix_fd_support.odin     posix-fd-support.h
+│   ├── preset_load.odin          preset-load.h
+│   ├── remote_controls.odin      remote-controls.h
+│   ├── render.odin               render.h
+│   ├── state.odin                state.h
+│   ├── state_context.odin        state-context.h
+│   ├── surround.odin             surround.h
+│   ├── tail.odin                 tail.h
+│   ├── thread_check.odin         thread-check.h
+│   ├── thread_pool.odin          thread-pool.h
+│   ├── timer_support.odin        timer-support.h
+│   ├── track_info.odin           track-info.h
+│   ├── voice_info.odin           voice-info.h
+│   └── draft/                    draft/
+│       ├── extensible_audio_ports.odin extensible-audio-ports.h
+│       ├── gain_adjustment_metering.odin gain-adjustment-metering.h
+│       ├── mini_curve_display.odin mini-curve-display.h
+│       ├── project_location.odin project-location.h
+│       ├── resource_directory.odin resource-directory.h
+│       ├── scratch_memory.odin   scratch-memory.h
+│       ├── transport_control.odin transport-control.h
+│       ├── triggers.odin         triggers.h
+│       ├── tuning.odin           tuning.h
+│       ├── undo.odin             undo.h
+│       └── webview.odin          webview.h
+└── factory/                      factory/
+    ├── plugin_factory.odin       plugin-factory.h
+    ├── preset_discovery.odin     preset-discovery.h
+    └── draft/                    draft/
+        ├── plugin_invalidation.odin plugin-invalidation.h
+        └── plugin_state_converter.odin plugin-state-converter.h
 ```
 
 ## Building
 
-To build a CLAP plugin with these bindings:
-
-1. Import the clap-odin package in your plugin source
-2. Implement the required interfaces
-3. Export the `clap_entry` symbol
-4. Compile as a shared library (.clap file)
-
-Example build command:
-```bash
-odin build <folder> -o:aggressive -build-mode:dll -out:<plugin-name>.clap
-```
-
-## Validation
-
-Use the official [CLAP validator](https://github.com/free-audio/clap-validator) to test your plugin:
+Build your plugin as a shared library with the `.clap` extension:
 
 ```bash
-./clap-validator validate /path/to/your/plugin.clap
+odin build <folder> -build-mode:dll -out:<plugin-name>.clap
 ```
 
-## CLAP Version
+Test with the [CLAP validator](https://github.com/free-audio/clap-validator):
 
-These bindings are compatible with CLAP v1.2.7.
+```bash
+clap-validator validate /path/to/your/plugin.clap
+```
 
 ## License
 
-This project follows the same license as the CLAP specification.
+Same license as the [CLAP specification](https://github.com/free-audio/clap).

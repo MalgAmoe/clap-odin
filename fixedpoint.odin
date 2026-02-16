@@ -8,8 +8,8 @@ import "core:math"
 //   y: Beat_Time = Beat_Time(round(BEATTIME_FACTOR * x))
 
 // These values will never change
-BEATTIME_FACTOR :: 1 << 31
-SECTIME_FACTOR :: 1 << 31
+BEATTIME_FACTOR :: i64(1) << 31
+SECTIME_FACTOR :: i64(1) << 31
 
 // Fixed point time types
 Beat_Time :: distinct i64 // clap_beattime

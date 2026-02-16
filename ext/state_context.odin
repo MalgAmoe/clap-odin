@@ -28,7 +28,7 @@ Plugin_State_Context :: struct {
 	// Note that the result may be loaded by both Plugin_State.load() and
 	// Plugin_State_Context.load().
 	// [main-thread]
-	save: proc "c" (plugin: ^clap.Plugin, stream: ^clap.OStream, context_type: u32) -> bool,
+	save: proc "c" (plugin: ^clap.Plugin, stream: ^clap.Output_Stream, context_type: u32) -> bool,
 
 	// Loads the plugin state from stream, according to context_type.
 	// Returns true if the state was correctly restored.
@@ -36,5 +36,5 @@ Plugin_State_Context :: struct {
 	// Note that the state may have been saved by Plugin_State.save() or
 	// Plugin_State_Context.save() with a different context_type.
 	// [main-thread]
-	load: proc "c" (plugin: ^clap.Plugin, stream: ^clap.IStream, context_type: u32) -> bool,
+	load: proc "c" (plugin: ^clap.Plugin, stream: ^clap.Input_Stream, context_type: u32) -> bool,
 }

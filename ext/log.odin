@@ -2,6 +2,8 @@ package ext
 
 import clap ".."
 
+EXT_LOG :: "clap.log"
+
 Log_Severity :: enum i32 {
 	DEBUG              = 0,
 	INFO               = 1,

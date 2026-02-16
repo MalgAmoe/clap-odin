@@ -1,7 +1,5 @@
 package clap
 
-import "core:c"
-
 // Plugin descriptor containing metadata about the plugin
 Plugin_Descriptor :: struct {
 	clap_version: Version, // initialized to CLAP_VERSION

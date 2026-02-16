@@ -47,7 +47,7 @@ Plugin_Webview :: struct {
 		path: cstring,
 		mime: [^]u8,
 		mime_capacity: u32,
-		data_stream: ^clap.OStream,
+		data_stream: ^clap.Output_Stream,
 	) -> bool,
 
 	// Receives a single message from the webview, which must be open and ready to receive replies.
