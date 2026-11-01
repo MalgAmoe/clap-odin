@@ -2,6 +2,23 @@
 
 Odin bindings for [CLAP](https://github.com/free-audio/clap) (CLever Audio Plugin) v1.2.10.
 
+## Setup
+
+Tested with Odin `dev-2026-03:1a5126c6b` on macOS arm64. Python 3.9+
+is needed only for the verification helper; a C11 compiler is needed for ABI checks.
+
+Clone this repository into a dependencies directory and register its parent:
+
+```sh
+git clone https://github.com/MalgAmoe/clap-odin /path/to/deps/clap-odin
+odin build your-plugin -build-mode:dll -collection:deps=/path/to/deps
+```
+
+Import `clap "deps:clap-odin"`, `ext "deps:clap-odin/ext"`, and so on.
+Alternatively, use relative imports when the bindings are inside your project.
+The examples below show package paths; choose the prefix for your layout.
+All consumers must use the same package location to preserve Odin type identity.
+
 ## Packages
 
 There are 5 Odin packages, matching the C header directory layout:
@@ -31,7 +48,7 @@ C names map to Odin names with these rules:
 
 ## File mapping
 
-Every Odin file maps 1:1 to a C header:
+Each binding file maps to a C header (the example and tooling are separate):
 
 ```
 clap-odin/                        C header
@@ -114,15 +131,44 @@ Draft extensions are optional and may change incompatibly upstream.
 
 ## Example
 
-`example/` contains a complete ZDF SVF (state-variable filter) plugin -- stereo processing, sample-accurate parameter automation, state save/load. ~230 lines.
+`example/` contains a complete ZDF SVF (state-variable filter) plugin -- stereo processing, sample-accurate parameter automation, state save/load.
+
+On Linux, build the shared library directly:
 
 ```bash
-odin build example -build-mode:dll -out:zdf_svf.clap
+odin build example -build-mode:dll -thread-count:1 -out:zdf_svf.clap
 ```
+
+On macOS, a `.clap` plugin is a bundle, not just a renamed dylib. For the example:
+
+```bash
+mkdir -p build/zdf_svf.clap/Contents/MacOS
+odin build example -build-mode:dll -thread-count:1 -out:build/zdf_svf.clap/Contents/MacOS/zdf_svf.dylib
+mv build/zdf_svf.clap/Contents/MacOS/zdf_svf.dylib build/zdf_svf.clap/Contents/MacOS/zdf_svf
+python3 - <<'PLIST'
+import plistlib
+from pathlib import Path
+Path("build/zdf_svf.clap/Contents/Info.plist").write_bytes(plistlib.dumps({
+    "CFBundleExecutable": "zdf_svf",
+    "CFBundleIdentifier": "com.example.zdf-svf",
+    "CFBundleName": "ZDF SVF",
+    "CFBundleVersion": "1.0.0",
+    "CFBundleShortVersionString": "1.0.0",
+    "CFBundlePackageType": "BNDL",
+}))
+PLIST
+codesign --force --sign - build/zdf_svf.clap
+codesign --verify --strict build/zdf_svf.clap
+clap-validator validate --no-parallel build/zdf_svf.clap
+```
+
+This does not install the plugin. The example metadata above must stay in sync
+with `example/zdf_svf.odin`. Production packaging belongs in the consumer's build
+tooling; macOS distribution signing/notarization is outside this example.
 
 ## Building
 
-Build your plugin as a shared library with the `.clap` extension:
+Compile your plugin as a shared library (on macOS, then package it as above):
 
 ```bash
 odin build <folder> -build-mode:dll -out:<plugin-name>.clap
@@ -133,6 +179,23 @@ Test with the [CLAP validator](https://github.com/free-audio/clap-validator):
 ```bash
 clap-validator validate /path/to/your/plugin.clap
 ```
+
+## Verification
+
+```sh
+python3 tools/check.py
+# Optional native C/Odin ABI comparison against an explicit CLAP 1.2.10 checkout:
+python3 tools/check.py --clap-include /path/to/clap/include
+```
+
+The helper checks all five packages and builds the example in a temporary directory.
+The optional comparison covers 14 selected layouts, member offsets, version constants,
+and new/changed extension IDs. It does not prove callback signature correctness or
+exhaustive ABI parity. It does not download headers or modify dependency locks.
+Runtime validation and platform-specific builds remain separate checks.
+GitHub Actions runs these checks on Linux with the pinned Odin dev-2026-03
+release (SHA-256 verified) and CLAP 1.2.10 reference commit. The workflow has
+not yet been exercised remotely.
 
 ## License
 

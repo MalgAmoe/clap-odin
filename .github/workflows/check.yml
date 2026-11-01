@@ -1,0 +1,33 @@
+name: Binding checks
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          path: clap-odin
+      - name: Install pinned Odin release
+        shell: bash
+        run: |
+          curl -fL --retry 3 -o "$RUNNER_TEMP/odin.tar.gz" https://github.com/odin-lang/Odin/releases/download/dev-2026-03/odin-linux-amd64-dev-2026-03.tar.gz
+          echo "60ff31bfb5807617eaa63d4a516f9d64f45e3cd1f5bba952298353036dbe8464  $RUNNER_TEMP/odin.tar.gz" | sha256sum -c -
+          mkdir "$RUNNER_TEMP/odin"
+          tar -xzf "$RUNNER_TEMP/odin.tar.gz" -C "$RUNNER_TEMP/odin"
+          odin_bin=$(find "$RUNNER_TEMP/odin" -type f -name odin -print -quit)
+          test -n "$odin_bin"
+          echo "$(dirname "$odin_bin")" >> "$GITHUB_PATH"
+      - name: Fetch pinned CLAP reference headers
+        shell: bash
+        run: |
+          git init "$RUNNER_TEMP/clap"
+          git -C "$RUNNER_TEMP/clap" remote add origin https://github.com/free-audio/clap.git
+          git -C "$RUNNER_TEMP/clap" fetch --depth=1 origin 195b42a004144fab0b3cf95e9c067187d15365b7
+          git -C "$RUNNER_TEMP/clap" checkout --detach FETCH_HEAD
+      - name: Compile and compare native ABI
+        working-directory: clap-odin
+        run: |
+          odin version
+          python3 tools/check.py --clap-include "$RUNNER_TEMP/clap/include"
