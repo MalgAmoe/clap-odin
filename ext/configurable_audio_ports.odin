@@ -35,7 +35,7 @@ Audio_Port_Configuration_Request :: struct {
 // Plugin configurable audio ports interface
 Plugin_Configurable_Audio_Ports :: struct {
 	// Returns true if the given configurations can be applied using apply_configuration().
-	// [main-thread && !active]
+	// [main-thread & !active]
 	can_apply_configuration: proc "c" (
 		plugin: ^clap.Plugin,
 		requests: [^]Audio_Port_Configuration_Request,
@@ -49,7 +49,7 @@ Plugin_Configurable_Audio_Ports :: struct {
 	// Host_Audio_Ports.changed(); and it isn't necessary for the host to scan the audio ports.
 	//
 	// Returns true if applied.
-	// [main-thread && !active]
+	// [main-thread & !active]
 	apply_configuration:     proc "c" (
 		plugin: ^clap.Plugin,
 		requests: [^]Audio_Port_Configuration_Request,

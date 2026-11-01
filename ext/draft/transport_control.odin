@@ -6,7 +6,7 @@ import clap "../.."
 // The host has no obligation to execute these requests, so the interface may be
 // partially working.
 
-EXT_TRANSPORT_CONTROL :: "clap.transport-control/1"
+EXT_TRANSPORT_CONTROL :: "clap.transport-control/2"
 
 Host_Transport_Control :: struct {
 	// Jumps back to the start point and starts the transport
@@ -57,4 +57,12 @@ Host_Transport_Control :: struct {
 	// Toggles recording
 	// [main-thread]
 	request_toggle_record: proc "c" (host: ^clap.Host),
+
+	// Sets tempo.
+	// [main-thread]
+	request_tempo: proc "c" (host: ^clap.Host, tempo: f64),
+
+	// Sets time signature, same format as clap.Event_Transport.
+	// [main-thread]
+	request_time_signature: proc "c" (host: ^clap.Host, tsig_num: u16, tsig_denom: u16),
 }

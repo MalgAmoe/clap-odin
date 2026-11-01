@@ -88,8 +88,8 @@ Plugin :: struct {
 	// [audio-thread & active & processing]
 	process:          proc "c" (plugin: ^Plugin, process: ^Process) -> Process_Status,
 
-	// Query an extension.
-	// The returned pointer is owned by the plugin.
+	// Query an extension, returns null if not supported.
+	// The returned pointer is owned by the plugin and is valid until the call to plugin->destroy().
 	// It is forbidden to call it before plugin->init().
 	// You can call it within plugin->init() call, and after.
 	// [thread-safe]

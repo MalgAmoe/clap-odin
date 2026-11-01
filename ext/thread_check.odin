@@ -4,7 +4,7 @@ import clap ".."
 
 EXT_THREAD_CHECK :: "clap.thread-check"
 
-// CLAP defines two symbolic threads:
+// CLAP defines the following symbolic threads:
 //
 // main-thread:
 //    This is the thread in which most of the interaction between the plugin and host happens.
@@ -43,6 +43,12 @@ EXT_THREAD_CHECK :: "clap.thread-check"
 //    advertise a hard realtime constraint or don't implement the render extension. Hosts which
 //    provide [audio-thread] functions outside these conditions may experience inconsistent or
 //    inaccurate rendering.
+//
+// background-thread:
+//    Created by the host to run heavy operations without blocking the main thread.
+//    Only explicitly designated extensions use this thread. Plugins implementing
+//    background interfaces must take the necessary thread-safety precautions.
+//    The host must execute background operations in a race-free, deterministic way.
 //
 //  Clap also tags some functions as [thread-safe]. Functions tagged as [thread-safe] can be called
 //  from any thread unless explicitly counter-indicated (for instance [thread-safe, !audio-thread])

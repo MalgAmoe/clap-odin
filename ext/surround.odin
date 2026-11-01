@@ -12,11 +12,8 @@ import clap ".."
 //
 // If the host decides to change the project's surround setup:
 // 1. deactivate the plugin
-// 2. host calls Plugin_Surround->changed()
-// 3. plugin calls Host_Surround->get_preferred_channel_map()
-// 4. plugin eventually calls Host_Surround->changed()
-// 5. host calls Plugin_Surround->get_channel_map() if changed
-// 6. host activates the plugin and can start processing audio
+// 2. host pushes a new configuration using Plugin_Configurable_Audio_Ports
+// 3. host activates the plugin and can start processing audio
 //
 // If the plugin wants to change its surround setup:
 // 1. call host->request_restart() if the plugin is active

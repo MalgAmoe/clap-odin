@@ -1,6 +1,6 @@
 # CLAP-Odin
 
-Odin bindings for [CLAP](https://github.com/free-audio/clap) (CLever Audio Plugin) v1.2.7.
+Odin bindings for [CLAP](https://github.com/free-audio/clap) (CLever Audio Plugin) v1.2.10.
 
 ## Packages
 
@@ -79,6 +79,13 @@ clap-odin/                        C header
 │   ├── track_info.odin           track-info.h
 │   ├── voice_info.odin           voice-info.h
 │   └── draft/                    draft/
+│       ├── background_activation.odin     background-activation.h
+│       ├── background_progress.odin       background-progress.h
+│       ├── background_state_context.odin  background-state-context.h
+│       ├── flush_events.odin              flush-events.h
+│       ├── octave_number.odin             octave-number.h
+│       ├── param_hovered.odin             param-hovered.h
+│       ├── params_origin.odin             params-origin.h
 │       ├── extensible_audio_ports.odin extensible-audio-ports.h
 │       ├── gain_adjustment_metering.odin gain-adjustment-metering.h
 │       ├── mini_curve_display.odin mini-curve-display.h
@@ -97,6 +104,13 @@ clap-odin/                        C header
         ├── plugin_invalidation.odin plugin-invalidation.h
         └── plugin_state_converter.odin plugin-state-converter.h
 ```
+
+## Updating from 1.2.7
+
+The draft transport-control extension now uses `clap.transport-control/2` and
+adds `request_tempo` and `request_time_signature`. Hosts implementing this
+interface must provide both callbacks; do not expose the old struct under the new ID.
+Draft extensions are optional and may change incompatibly upstream.
 
 ## Example
 

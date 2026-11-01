@@ -18,7 +18,7 @@ Plugin_Factory :: struct {
 
 	// Retrieves a plugin descriptor by its index.
 	// Returns null in case of error.
-	// The descriptor must not be freed.
+	// The descriptor is owned by the plugin and is valid until Plugin_Entry.deinit().
 	// [thread-safe]
 	get_plugin_descriptor: proc "c" (
 		factory: ^Plugin_Factory,
@@ -26,7 +26,8 @@ Plugin_Factory :: struct {
 	) -> ^clap.Plugin_Descriptor,
 
 	// Create a clap_plugin by its plugin_id.
-	// The returned pointer must be freed by calling plugin->destroy(plugin);
+	// The host pointer must be valid until after plugin->destroy(plugin).
+	// The returned pointer is owned by the plugin and must be freed by plugin->destroy(plugin).
 	// The plugin is not allowed to use the host callbacks in the create method.
 	// Returns null in case of error.
 	// [thread-safe]

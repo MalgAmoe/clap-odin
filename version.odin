@@ -3,7 +3,7 @@ package clap
 // CLAP version constants - updated to match the latest C API
 CLAP_VERSION_MAJOR :: 1
 CLAP_VERSION_MINOR :: 2
-CLAP_VERSION_REVISION :: 7
+CLAP_VERSION_REVISION :: 10
 
 CLAP_VERSION :: Version {
 	major    = CLAP_VERSION_MAJOR,

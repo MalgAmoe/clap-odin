@@ -11,8 +11,8 @@ Host :: struct {
 	url:              cstring, // eg: "https://bitwig.com"
 	version:          cstring, // eg: "4.3", see plugin.h for advice on how to format the version
 
-	// Query an extension.
-	// The returned pointer is owned by the host.
+	// Query an extension, returns null if not supported.
+	// The returned pointer is owned by the host and is valid until after the call to plugin->destroy().
 	// It is forbidden to call it before plugin->init().
 	// You can call it within plugin->init() call, and after.
 	// [thread-safe]

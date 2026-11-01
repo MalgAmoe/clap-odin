@@ -10,7 +10,7 @@ Plugin_Extensible_Audio_Ports :: struct {
 	// port_type: see Audio_Port_Info.port_type for interpretation.
 	// port_details: see Audio_Port_Configuration_Request.port_details for interpretation.
 	// Returns true on success.
-	// [main-thread && !is_active]
+	// [main-thread & !active]
 	add_port:    proc "c" (
 		plugin: ^clap.Plugin,
 		is_input: bool,
@@ -21,6 +21,6 @@ Plugin_Extensible_Audio_Ports :: struct {
 
 	// Asks the plugin to remove a port.
 	// Returns true on success.
-	// [main-thread && !is_active]
+	// [main-thread & !active]
 	remove_port: proc "c" (plugin: ^clap.Plugin, is_input: bool, index: u32) -> bool,
 }

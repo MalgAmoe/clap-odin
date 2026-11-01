@@ -10,6 +10,10 @@ PARAM_IS_STEPPED                 :: 1 << 0
 PARAM_IS_PERIODIC                :: 1 << 1
 PARAM_IS_HIDDEN                  :: 1 << 2
 PARAM_IS_READONLY                :: 1 << 3
+// Merges plugin and host bypass controls; implies stepped, with range 0 (off) to 1 (on).
+// Only one bypass parameter is allowed per plugin. Its value must not determine
+// whether the host calls process(). The plugin handles bypass in process(),
+// optionally returning PROCESS_SLEEP to save CPU.
 PARAM_IS_BYPASS                  :: 1 << 4
 PARAM_IS_AUTOMATABLE             :: 1 << 5
 PARAM_IS_AUTOMATABLE_PER_NOTE_ID :: 1 << 6

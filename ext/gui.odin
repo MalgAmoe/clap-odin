@@ -7,6 +7,7 @@ EXT_GUI :: "clap.gui"
 
 WINDOW_API_WIN32 :: "win32"
 WINDOW_API_COCOA :: "cocoa"
+WINDOW_API_UIKIT :: "uikit"
 WINDOW_API_X11 :: "x11"
 WINDOW_API_WAYLAND :: "wayland"
 
@@ -20,10 +21,12 @@ when ODIN_OS == .Windows {
 
 hwnd :: rawptr // Win32
 nsview :: rawptr // Cocoa
+uiview :: rawptr // UIKit (iOS/iPadOS)
 xwnd :: c.ulong // X11
 
 Window_Handle :: struct #raw_union {
 	cocoa: rawptr, // nsview
+	uikit: rawptr, // uiview
 	x11:   xwnd,
 	win32: rawptr, // hwnd
 	ptr:   rawptr,
